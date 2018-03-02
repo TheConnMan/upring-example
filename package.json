@@ -9,6 +9,7 @@
   "author": "TheConnMan",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.205.0"
+    "aws-sdk": "^2.205.0",
+    "uuid": "^3.2.1"
   }
 }
