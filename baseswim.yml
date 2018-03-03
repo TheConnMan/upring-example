@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: baseswim
+spec:
+  selector:
+    name: baseswim
+  clusterIP: None
+  ports:
+  - port: 7799
+    protocol: UDP
+    targetPort: 7799
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: baseswim
+  labels:
+    name: baseswim
+spec:
+  hostname: baseswim
+  containers:
+  - name: baseswim
+    image: matteocollina/baseswim
+    ports:
+    - containerPort: 7799
+      name: swim

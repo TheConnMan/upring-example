@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+const dns = require('dns');
 
 const sqs = new AWS.SQS({
   region: 'us-east-1'
@@ -6,7 +7,23 @@ const sqs = new AWS.SQS({
 
 const QUEUE_URL = process.env.QUEUE_URL;
 
-getMessages();
+dns.lookup('baseswim', (err, address) => {
+  const upring = require('upring')({
+    logLevel: 'trace',
+    base: [`${address}:7799`],
+    hashring: {
+      joinTimeout: 5000,
+      replicaPoints: 10
+    }
+  })
+
+  upring.on('up', () => {
+    console.log('Ready')
+    getMessages();
+  });
+})
+
+// getMessages();
 
 async function getMessages() {
   console.log('Getting messages...');
