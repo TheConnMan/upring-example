@@ -10,7 +10,9 @@
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.205.0",
+    "logdna-winston": "^1.0.0",
     "upring": "^0.22.0",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "winston": "^2.4.0"
   }
 }

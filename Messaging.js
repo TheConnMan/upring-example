@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+const winston = require('winston');
 
 const QUEUE_URL = process.env.QUEUE_URL;
 
@@ -18,10 +19,14 @@ module.exports = class Messaging {
       MaxNumberOfMessages: 10
     }).promise();
     if (messages.Messages) {
-      await Promise.all(messages.Messages.map((message) => {
-        return this.consumerFunction(message.Body);
-      }));
-      await this.deleteMessages(messages.Messages)
+      try {
+        await Promise.all(messages.Messages.map((message) => {
+          return this.consumerFunction(message.Body);
+        }));
+        await this.deleteMessages(messages.Messages)
+      } catch (e) {
+        winston.error('Error consuming messages', e);
+      }
     }
     return this.getMessages();
   }
