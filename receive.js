@@ -3,11 +3,13 @@ const Messaging = require('./Messaging');
 const winston = require('winston');
 const logdna = require('logdna-winston');
 
-winston.add(winston.transports.Logdna, {
-  key: process.env.LOGDNA_KEY,
-  app: 'upring',
-  index_meta: true
-});
+if (process.env.LOGDNA_KEY) {
+  winston.add(winston.transports.Logdna, {
+    key: process.env.LOGDNA_KEY,
+    app: 'upring',
+    index_meta: true
+  });
+}
 
 dns.lookup('baseswim', (err, address) => {
   const upring = require('upring')({

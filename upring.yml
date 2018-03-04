@@ -34,3 +34,12 @@ spec:
         ports:
         - containerPort: 7799
           name: swim
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          value: 
+        - name: AWS_SECRET_ACCESS_KEY
+          value: 
+        - name: QUEUE_URL
+          value: 
+        - name: LOGDNA_KEY
+          value: 
