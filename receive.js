@@ -1,15 +1,9 @@
-const AWS = require('aws-sdk');
 const dns = require('dns');
-
-const sqs = new AWS.SQS({
-  region: 'us-east-1'
-});
-
-const QUEUE_URL = process.env.QUEUE_URL;
+const Messaging = require('./Messaging');
 
 dns.lookup('baseswim', (err, address) => {
   const upring = require('upring')({
-    logLevel: 'trace',
+    logLevel: 'info',
     base: [`${address}:7799`],
     hashring: {
       joinTimeout: 5000,
@@ -18,45 +12,27 @@ dns.lookup('baseswim', (err, address) => {
   })
 
   upring.on('up', () => {
-    console.log('Ready')
-    getMessages();
+    new Messaging(async (payload) => {
+      const json = JSON.parse(payload);
+      const reply = await upring.requestp({
+        key: json.id,
+        node: upring.whoami()
+      });
+      console.log(`Message processed on node ${reply.node}`);
+    }).getMessages();
   });
-})
 
-// getMessages();
-
-async function getMessages() {
-  console.log('Getting messages...');
-  var messages = await sqs.receiveMessage({
-    QueueUrl: QUEUE_URL,
-    WaitTimeSeconds: 20,
-    MaxNumberOfMessages: 10
-  }).promise();
-  if (messages.Messages) {
-    await Promise.all(messages.Messages.map((message) => {
-      return processMessage(message.Body);
-    }));
-    await deleteMessages(messages.Messages)
-  }
-  return getMessages();
-}
+  upring.on('request', async (req, reply) => {
+    console.log(`Incoming message from node ${req.node} processed on ${upring.whoami()}`)
+    await processMessage(req);
+    reply(null, {
+      node: upring.whoami()
+    })
+  });
+});
 
 async function processMessage(payload) {
-  console.log(payload);
   return new Promise((resolve, reject) => {
     setTimeout(resolve, 5000);
   });
-}
-
-async function deleteMessages(messages) {
-  console.log('Deleting messages')
-  return sqs.deleteMessageBatch({
-    QueueUrl: QUEUE_URL,
-    Entries: messages.map((message) => {
-      return {
-        Id: message.MessageId,
-        ReceiptHandle: message.ReceiptHandle
-      }
-    })
-  }).promise();
 }
